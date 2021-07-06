@@ -4,8 +4,7 @@ var pipeline = [
   {
     $match: {
       writers: {
-        $exists: true,
-        $type:"array"
+        $elemMatch: { $exists: true },
       },
     },
   },
@@ -25,31 +24,22 @@ var pipeline = [
       },
     },
   },
-  // {
-  //   $match: {
-  //     "writers": { $type: "string" },
-  //   },
-  // },
-    {
-  $project:{
-    "labor of love":{ $setIntersection:["writers", "cast", "directors"]},
-  }
+
+  {
+    $project: {
+      labor_of_love: { $setIntersection: ["$writers", "$cast", "$directors"] },
     },
-
-  //   {
-  //       $match:{
-  //           $expr:{
-  //               $gt:[{$size:["labor of love"]},1]
-  //           }
-  //       }
-  //   }
+  },
+  {
+    $match: {
+      $expr: { $isArray: "$labor_of_love" },
+    },
+  },
+  {
+    $match: {
+      $expr: {
+        $gt: [{ $size: "$labor_of_love" }, 0],
+      },
+    },
+  }
 ];
-
-db.movies.find({ cast: { type: "string" } });
-db.movies.find({ writers: { type: "string" } });
-db.movies.find({ directors: { type: "string" } });
-
-D.W.Griffith;
-db.movies
-  .find({ directors: { $in: ["D.W. Griffith"] } }, { directors: 1, writers: 1 })
-  .pretty();
